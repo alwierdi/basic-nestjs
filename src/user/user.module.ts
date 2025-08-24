@@ -3,6 +3,7 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import {
   Connection,
+  createConnection,
   MongoDBConnection,
   PostgreSQLConnection,
 } from './connection/connection';
@@ -12,6 +13,7 @@ import {
   UserRepository,
 } from './user-repository/user-repository';
 import { MemberService } from './member/member.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [UserController],
@@ -19,10 +21,8 @@ import { MemberService } from './member/member.service';
     UserService,
     {
       provide: Connection,
-      useClass:
-        process.env.DATABASE === 'postgresql'
-          ? PostgreSQLConnection
-          : MongoDBConnection,
+      useFactory: createConnection,
+      inject: [ConfigService],
     },
     {
       provide: MailService,
