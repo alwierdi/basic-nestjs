@@ -20,6 +20,7 @@ import { Connection } from '../connection/connection';
 import { MailService } from '../mail/mail.service';
 import { UserRepository } from '../user-repository/user-repository';
 import { MemberService } from '../member/member.service';
+import { User } from '@prisma/client';
 
 @Controller('/api/users')
 export class UserController {
@@ -34,7 +35,6 @@ export class UserController {
 
   @Get('/connection')
   async getConnection(): Promise<string | null> {
-    this.userRepository.save();
     this.mailService.sendMail();
     this.emailService.sendMail();
     console.info(this.memberService.getConnectionName());
@@ -94,9 +94,13 @@ export class UserController {
     });
   }
 
-  @Post('/create')
-  create() {
-    return 'create user';
+  @Get('/create')
+  async create(
+    @Query('email') email: string,
+    @Query('username') username: string,
+    @Query('password') password: string,
+  ): Promise<User> {
+    return this.userRepository.save(email, username, password);
   }
   @Get('/getAll')
   getAll() {
