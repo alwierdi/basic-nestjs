@@ -3,6 +3,7 @@ import {
   Get,
   Header,
   HttpCode,
+  HttpException,
   HttpRedirectResponse,
   Inject,
   Param,
@@ -11,6 +12,7 @@ import {
   Redirect,
   Req,
   Res,
+  UseFilters,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { request } from 'http';
@@ -21,6 +23,9 @@ import { MailService } from '../mail/mail.service';
 import { UserRepository } from '../user-repository/user-repository';
 import { MemberService } from '../member/member.service';
 import { User } from '@prisma/client';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+import { ValidationFilter } from 'src/validation/validation.filter';
 
 @Controller('/api/users')
 export class UserController {
@@ -29,6 +34,7 @@ export class UserController {
     private connection: Connection,
     private mailService: MailService,
     @Inject('EmailService') private emailService: MailService,
+    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private userRepository: UserRepository,
     private memberService: MemberService,
   ) {}
@@ -94,12 +100,21 @@ export class UserController {
     });
   }
 
-  @Get('/create')
+  @Post('/create')
   async create(
     @Query('email') email: string,
     @Query('username') username: string,
     @Query('password') password: string,
   ): Promise<User> {
+    if (!email) {
+      throw new HttpException(
+        {
+          code: 400,
+          message: 'Email is required',
+        },
+        400,
+      );
+    }
     return this.userRepository.save(email, username, password);
   }
   @Get('/getAll')
@@ -113,10 +128,16 @@ export class UserController {
   }
 
   @Get('/profile')
+  // @UseFilters(ValidationFilter)
   async getProfile(
     @Query('name') name: string,
     @Query('position') position: string,
   ): Promise<string> {
-    return this.service.sayHello(name, position);
+    // this.logger.info(
+    //   `Received request /api/user/profile with name=${name}, position=${position}`,
+    // );
+    const message = this.service.sayHello(name, position);
+    this.logger.info(`Responding with message: ${message}`);
+    return message;
   }
 }
