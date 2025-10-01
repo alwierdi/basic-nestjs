@@ -17,4 +17,16 @@ export class UserService {
 
     return `Hii, ${validateName}!, you are ${position}`;
   }
+
+  calculateEquityPercentage(initial: number, current: number): number {
+    if (initial === 0) {
+      throw new Error('Initial capital cannot be zero');
+    }
+
+    const percent = ((current - initial) / initial) * 100;
+    this.logger.info(
+      `Initial: ${initial}, Current: ${current}, Change: ${percent.toFixed(2)}%`,
+    );
+    return percent;
+  }
 }
