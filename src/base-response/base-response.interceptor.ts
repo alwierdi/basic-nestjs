@@ -9,7 +9,7 @@ import { map, Observable } from 'rxjs';
 import {
   BaseResponse,
   createResponse,
-  RESPONSE_MESSAGE_KEY,
+  ResponseMessage,
 } from 'src/base-response/base-response';
 
 @Injectable()
@@ -27,10 +27,8 @@ export class BaseResponseInterceptor<T>
         const statusCode = response.statusCode;
 
         const customMessage =
-          this.reflector.get<string>(
-            RESPONSE_MESSAGE_KEY,
-            context.getHandler(),
-          ) || 'success';
+          this.reflector.get<string>(ResponseMessage, context.getHandler()) ??
+          'success';
 
         return createResponse(statusCode, customMessage, data);
       }),

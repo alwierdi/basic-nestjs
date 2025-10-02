@@ -1,4 +1,4 @@
-import { SetMetadata } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 
 export interface BaseResponse<T> {
   status: number;
@@ -23,6 +23,4 @@ export function createResponse<T>(
   };
 }
 
-export const RESPONSE_MESSAGE_KEY = 'response_message';
-export const ResponseMessage = (message: string) =>
-  SetMetadata(RESPONSE_MESSAGE_KEY, message);
+export const ResponseMessage = Reflector.createDecorator<string>();
