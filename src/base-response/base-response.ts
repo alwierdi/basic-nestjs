@@ -3,6 +3,7 @@ export interface BaseResponse<T> {
   message: string;
   data?: T;
   error?: string | string[];
+  timestamp: string;
 }
 
 export function createResponse<T>(
@@ -16,5 +17,6 @@ export function createResponse<T>(
     message,
     data,
     error,
+    timestamp: new Date().toISOString(),
   };
 }

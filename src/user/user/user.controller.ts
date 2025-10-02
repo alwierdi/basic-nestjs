@@ -35,10 +35,8 @@ import {
   loginUserRequestValidation,
 } from 'src/model/login.model';
 import { ValidationPipe } from 'src/validation/validation.pipe';
-import { TimestampInterceptor } from 'src/timestamp/timestamp.interceptor';
 import { Auth } from 'src/auth/auth.decorator';
 import { RoleGuard } from 'src/role/role.guard';
-import { createResponse } from 'src/common/base-response';
 import { Roles } from 'src/role/roles.decorator';
 @UseGuards(RoleGuard)
 @Controller('/api/users')
@@ -54,12 +52,12 @@ export class UserController {
   ) {}
 
   @Post('/login')
-  @UseInterceptors(TimestampInterceptor)
+  // @UseInterceptors(TimestampInterceptor)
   login(
     @Body(new ValidationPipe(loginUserRequestValidation))
     body: LoginUserRequest,
   ) {
-    return createResponse(200, 'success');
+    return;
   }
 
   @Post('/create')
@@ -80,21 +78,21 @@ export class UserController {
     return this.userRepository.save(email, username, password);
   }
 
-  @Get('/current')
+  @Get('/admin/current')
   @Roles(['admin'])
   current(@Auth() user: User): Record<string, any> {
-    return createResponse(200, 'success', user);
+    return user;
   }
 
   @Roles(['admin', 'apestor'])
-  @Get('/percentage/:initial/:current')
+  @Get('/admin/percentage/:initial/:current')
   getDetail(
     @Auth() user: User,
     @Param('initial', ParseIntPipe) initial: number,
     @Param('current', ParseIntPipe) current: number,
   ): Record<string, any> {
     const result = this.service.calculateEquityPercentage(initial, current);
-    return createResponse(200, 'success', result);
+    return result;
   }
 
   @Get('/profile')

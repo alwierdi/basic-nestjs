@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AllExceptions } from './all-exceptions/all.exceptions.filter';
+import { BaseResponseInterceptor } from './base-response/base-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -19,6 +20,7 @@ async function bootstrap() {
   app.set('view engine', 'html');
   app.engine('html', mustache());
 
+  app.useGlobalInterceptors(new BaseResponseInterceptor());
   app.useGlobalFilters(new AllExceptions());
   app.enableShutdownHooks();
 
