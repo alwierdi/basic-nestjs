@@ -15,6 +15,7 @@ import {
   Req,
   Res,
   UseFilters,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
@@ -36,6 +37,8 @@ import {
 import { ValidationPipe } from 'src/validation/validation.pipe';
 import { TimestampInterceptor } from 'src/timestamp/timestamp.interceptor';
 import { Auth } from 'src/auth/auth.decorator';
+import { RoleGuard } from 'src/role/role.guard';
+import { createResponse } from 'src/common/base-response';
 
 @Controller('/api/users')
 export class UserController {
@@ -50,12 +53,9 @@ export class UserController {
   ) {}
 
   @Get('/current')
+  @UseGuards(new RoleGuard(['admin', 'investor']))
   current(@Auth() user: User): Record<string, any> {
-    return {
-      status: 200,
-      message: 'success',
-      data: user,
-    };
+    return createResponse(200, 'success', user);
   }
 
   @Get('/connection')
@@ -91,20 +91,16 @@ export class UserController {
     @Body(new ValidationPipe(loginUserRequestValidation))
     body: LoginUserRequest,
   ) {
-    return {
-      status: 200,
-      message: 'success',
-      data: body,
-    };
+    return createResponse(200, 'success');
   }
 
   @Get('/percentage/:initial/:current')
   getDetail(
     @Param('initial', ParseIntPipe) initial: number,
     @Param('current', ParseIntPipe) current: number,
-  ): string {
+  ): Record<string, any> {
     const result = this.service.calculateEquityPercentage(initial, current);
-    return `Your return is: ${result}%`;
+    return createResponse(200, 'success', result);
   }
 
   @Get('/profile')
