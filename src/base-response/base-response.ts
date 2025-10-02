@@ -1,3 +1,5 @@
+import { SetMetadata } from '@nestjs/common';
+
 export interface BaseResponse<T> {
   status: number;
   message: string;
@@ -20,3 +22,7 @@ export function createResponse<T>(
     timestamp: new Date().toISOString(),
   };
 }
+
+export const RESPONSE_MESSAGE_KEY = 'response_message';
+export const ResponseMessage = (message: string) =>
+  SetMetadata(RESPONSE_MESSAGE_KEY, message);

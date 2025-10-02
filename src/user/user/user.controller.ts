@@ -39,6 +39,7 @@ import { Auth } from 'src/auth/auth.decorator';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/role/roles.decorator';
 import { LoggingInterceptor } from 'src/logging/logging.interceptor';
+import { ResponseMessage } from 'src/base-response/base-response';
 
 @UseGuards(RoleGuard)
 @Controller('/api/users')
@@ -89,6 +90,7 @@ export class UserController {
   }
 
   @Roles(['admin', 'apestor'])
+  @ResponseMessage('Profit/Loss retrieved successfully')
   @Get('/admin/percentage/:initial/:current')
   getDetail(
     @Auth() user: User,

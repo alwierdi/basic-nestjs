@@ -20,7 +20,6 @@ async function bootstrap() {
   app.set('view engine', 'html');
   app.engine('html', mustache());
 
-  app.useGlobalInterceptors(new BaseResponseInterceptor());
   app.useGlobalFilters(new AllExceptions());
   app.enableShutdownHooks();
 

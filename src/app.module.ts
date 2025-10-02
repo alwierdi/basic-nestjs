@@ -15,6 +15,7 @@ import * as winston from 'winston';
 import { AuthMiddleware } from './auth/auth.middleware';
 import { LoggingInterceptor } from './logging/logging.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { BaseResponseInterceptor } from './base-response/base-response.interceptor';
 
 @Module({
   imports: [
@@ -35,6 +36,10 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: BaseResponseInterceptor,
     },
   ],
 })
