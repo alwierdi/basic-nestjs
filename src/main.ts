@@ -20,6 +20,7 @@ async function bootstrap() {
   app.engine('html', mustache());
 
   app.useGlobalFilters(new AllExceptions());
+  app.enableShutdownHooks();
 
   const configService = app.get(ConfigService);
   await app.listen(configService.get<number>('PORT') || 3000);

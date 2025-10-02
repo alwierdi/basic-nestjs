@@ -39,7 +39,8 @@ import { TimestampInterceptor } from 'src/timestamp/timestamp.interceptor';
 import { Auth } from 'src/auth/auth.decorator';
 import { RoleGuard } from 'src/role/role.guard';
 import { createResponse } from 'src/common/base-response';
-
+import { Roles } from 'src/role/roles.decorator';
+@UseGuards(RoleGuard)
 @Controller('/api/users')
 export class UserController {
   constructor(
@@ -52,19 +53,13 @@ export class UserController {
     private memberService: MemberService,
   ) {}
 
-  @Get('/current')
-  @UseGuards(new RoleGuard(['admin', 'investor']))
-  current(@Auth() user: User): Record<string, any> {
-    return createResponse(200, 'success', user);
-  }
-
-  @Get('/connection')
-  async getConnection(): Promise<string | null> {
-    this.mailService.sendMail();
-    this.emailService.sendMail();
-    console.info(this.memberService.getConnectionName());
-    console.info(this.memberService.sendEmail());
-    return this.connection.getName();
+  @Post('/login')
+  @UseInterceptors(TimestampInterceptor)
+  login(
+    @Body(new ValidationPipe(loginUserRequestValidation))
+    body: LoginUserRequest,
+  ) {
+    return createResponse(200, 'success');
   }
 
   @Post('/create')
@@ -85,17 +80,16 @@ export class UserController {
     return this.userRepository.save(email, username, password);
   }
 
-  @Post('/login')
-  @UseInterceptors(TimestampInterceptor)
-  login(
-    @Body(new ValidationPipe(loginUserRequestValidation))
-    body: LoginUserRequest,
-  ) {
-    return createResponse(200, 'success');
+  @Get('/current')
+  @Roles(['admin'])
+  current(@Auth() user: User): Record<string, any> {
+    return createResponse(200, 'success', user);
   }
 
+  @Roles(['admin', 'apestor'])
   @Get('/percentage/:initial/:current')
   getDetail(
+    @Auth() user: User,
     @Param('initial', ParseIntPipe) initial: number,
     @Param('current', ParseIntPipe) current: number,
   ): Record<string, any> {
@@ -109,12 +103,18 @@ export class UserController {
     @Query('name') name: string,
     @Query('position') position: string,
   ): Promise<string> {
-    // this.logger.info(
-    //   `Received request /api/user/profile with name=${name}, position=${position}`,
-    // );
     const message = this.service.sayHello(name, position);
     this.logger.info(`Responding with message: ${message}`);
     return message;
+  }
+
+  @Get('/connection')
+  async getConnection(): Promise<string | null> {
+    this.mailService.sendMail();
+    this.emailService.sendMail();
+    console.info(this.memberService.getConnectionName());
+    console.info(this.memberService.sendEmail());
+    return this.connection.getName();
   }
 
   // Versi Express JS
