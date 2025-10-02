@@ -38,6 +38,8 @@ import { ValidationPipe } from 'src/validation/validation.pipe';
 import { Auth } from 'src/auth/auth.decorator';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles } from 'src/role/roles.decorator';
+import { LoggingInterceptor } from 'src/logging/logging.interceptor';
+
 @UseGuards(RoleGuard)
 @Controller('/api/users')
 export class UserController {
@@ -65,7 +67,7 @@ export class UserController {
     @Query('email') email: string,
     @Query('username') username: string,
     @Query('password') password: string,
-  ): Promise<User> {
+  ) {
     if (!email) {
       throw new HttpException(
         {
@@ -75,7 +77,9 @@ export class UserController {
         400,
       );
     }
-    return this.userRepository.save(email, username, password);
+
+    this.userRepository.save(email, username, password);
+    return;
   }
 
   @Get('/admin/current')

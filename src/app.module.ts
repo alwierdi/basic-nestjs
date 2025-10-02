@@ -12,8 +12,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { WinstonModule } from 'nest-winston';
 import { ValidationModule } from './validation/validation.module';
 import * as winston from 'winston';
-import { LogMiddleware } from './log/log.middleware';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { LoggingInterceptor } from './logging/logging.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -30,14 +31,15 @@ import { AuthMiddleware } from './auth/auth.middleware';
     ValidationModule.forRoot(true),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LogMiddleware).forRoutes({
-      path: '/api/*',
-      method: RequestMethod.ALL,
-    });
     consumer.apply(AuthMiddleware).forRoutes({
       path: '/api/users/admin/*',
       method: RequestMethod.ALL,
